@@ -11,7 +11,7 @@ on:
 jobs:
   build-mac-intel:
     name: Build macOS (Intel x64)
-    runs-on: macos-14-large 
+    runs-on: 	macos-13
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
