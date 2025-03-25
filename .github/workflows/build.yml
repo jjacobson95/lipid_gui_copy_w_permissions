@@ -35,7 +35,7 @@ jobs:
         run: npm run make-mac-arm64
 
       - name: Upload macOS Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: electron-mac-artifacts
           path: |
@@ -64,8 +64,7 @@ jobs:
         run: npm run make-win32-x64
 
       - name: Upload Windows Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: electron-windows-artifacts
           path: gui/out/make/win32-x64
-
