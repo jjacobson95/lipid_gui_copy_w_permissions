@@ -34,13 +34,15 @@ jobs:
       #   working-directory: gui
       #   run: npm run make-mac-arm64
 
-      # - name: Upload macOS Artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: electron-mac-artifacts
-      #     path: |
-      #       gui/out/make/mac-x64
-      #       gui/out/make/mac-arm64
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-mac-artifacts
+          path: |
+            gui/out/make/mac-x64
+
+          # gui/out/make/mac-arm64
+
 
   # build-windows:
   #   name: Build Windows (x64)
