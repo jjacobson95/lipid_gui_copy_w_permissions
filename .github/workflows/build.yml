@@ -39,7 +39,7 @@ jobs:
         with:
           name: electron-mac-artifacts
           path: |
-            gui/out/make/mac-x64
+            /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make
 
           # gui/out/make/mac-arm64
 
