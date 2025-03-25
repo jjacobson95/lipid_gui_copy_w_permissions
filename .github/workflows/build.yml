@@ -52,6 +52,10 @@ jobs:
         working-directory: gui
         run: npm install
 
+      - name: Rebuild native modules for Electron (arm64)
+        working-directory: gui
+        run: npm run rebuild-arm64
+        
       - name: Build macOS M1 (arm64)
         working-directory: gui
         run: npm run make-mac-arm64
@@ -82,14 +86,9 @@ jobs:
         working-directory: gui
         run: npm run make-win32-x64
 
-      - name: Prepare Windows Artifact
-        run: |
-          mkdir artifact
-          copy "gui\out\make\squirrel.windows\x64\*.exe" artifact\
-        shell: cmd
-
-      - name: Upload Windows Artifact
+      - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-distributable
-          path: artifact
+          path: 'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
+
