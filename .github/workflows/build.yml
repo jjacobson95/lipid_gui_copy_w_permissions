@@ -9,10 +9,9 @@ on:
       - main
 
 jobs:
-  build-mac:
-    name: Build macOS (Intel & M1)
-    runs-on: macos-latest
-
+  build-mac-intel:
+    name: Build macOS (Intel x64)
+    runs-on: macos-14-large 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -30,31 +29,42 @@ jobs:
         working-directory: gui
         run: npm run make-mac-x64
 
+      - name: Upload macOS Intel Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-intel-distributable
+          # Use the absolute path on the runner or a relative path if preferred
+          path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
+
+  build-mac-m1:
+    name: Build macOS (M1 arm64)
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        working-directory: gui
+        run: npm install
+
       - name: Build macOS M1 (arm64)
         working-directory: gui
         run: npm run make-mac-arm64
 
-      - name: Upload macOS Artifacts intel
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-intel-distributable
-          path: |
-            /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
-
-      - name: Upload macOS Artifacts M1
+      - name: Upload macOS M1 Artifact
         uses: actions/upload-artifact@v4
         with:
           name: mac-m1-distributable
-          path: |
-            /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-arm64.dmg
-
-          # gui/out/make/mac-arm64
-
+          path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-arm64.dmg
 
   build-windows:
     name: Build Windows (x64)
     runs-on: windows-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -72,9 +82,14 @@ jobs:
         working-directory: gui
         run: npm run make-win32-x64
 
-      - name: Upload Windows Artifacts
+      - name: Prepare Windows Artifact
+        run: |
+          mkdir artifact
+          copy "gui\out\make\squirrel.windows\x64\*.exe" artifact\
+        shell: cmd
+
+      - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electron-windows-artifacts
-          path: 'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
-
+          name: windows-distributable
+          path: artifact
