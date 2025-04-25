@@ -341,36 +341,35 @@ ipcMain.on('file-dialog-selection', (event, filePath) => {
 
 // Compute the Python project root: two levels up from gui/src
 const PY_PROJECT_ROOT = path.resolve(__dirname, '..', '..');
+let cliName = process.platform === 'win32'
+  ? 'lipidimea.exe'
+  : 'lipidimea';
+const LIPIDIMEA_CLI = path.join(
+  process.resourcesPath,      // Electron’s “Resources” folder
+  cliName
+);
 
 ipcMain.on('run-lipidimea-cli-steps', async (event, { steps }) => {
   for (const { cmd, desc } of steps) {
     event.reply('python-result-experiment', `\n>>> ${desc}\n`);
     try {
       await new Promise((resolve, reject) => {
-        // spawn python3.12 with cwd set to the repo root
         const child = spawn(
-          'python3.12',
-          ['-m', 'lipidimea', ...cmd],
-          { cwd: PY_PROJECT_ROOT, env: process.env }
+          LIPIDIMEA_CLI,
+          cmd,             // already includes subcommand + args
+          { env: process.env }
         );
 
-        child.stdout.on('data', data => {
-          event.reply('python-result-experiment', data.toString());
-        });
-        child.stderr.on('data', data => {
-          event.reply('python-result-experiment', data.toString());
-        });
-        child.on('close', code => {
-          code === 0
-            ? resolve()
-            : reject(new Error(`${desc} failed (exit ${code})`));
-        });
+        child.stdout.on('data', d => event.reply('python-result-experiment', d.toString()));
+        child.stderr.on('data', d => event.reply('python-result-experiment', d.toString()));
+        child.on('close', code => code === 0 ? resolve() : reject(new Error(`${desc} failed (exit ${code})`)));
       });
     } catch (err) {
       event.reply('python-result-experiment', `\nERROR: ${err.message}\n`);
-      return;  // stop the sequence on first error
+      return;
     }
   }
+
   event.reply('python-result-experiment', '\nExperiment complete.\n');
 });
 

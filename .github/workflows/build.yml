@@ -1,44 +1,83 @@
-name: Build Electron GUI
+name: Build & Package GUI + Python CLI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-mac-intel:
-    name: Build macOS (Intel x64)
-    runs-on: 	macos-13
+  build-python:
+    name: Build lipidimea CLI
+    runs-on: ubuntu-latest
+    outputs:
+      cli-binary-path: ${{ steps.freeze.outputs.binary }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install lipidimea dependencies
+        run: |
+          pip install pyinstaller
+          pip install .[cli]   # or however you install lipidimea
+
+      - name: Freeze CLI with PyInstaller
+        id: freeze
+        run: |
+          pyinstaller --noconfirm --onefile --name lipidimea lipidimea/__main__.py
+          echo "::set-output name=binary::dist/lipidimea"
+
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lipidimea-cli
+          path: dist/lipidimea
+
+  build-gui:
+    name: Package Electron GUI
+    needs: build-python
+    runs-on: macos-13
+    defaults:
+      run:
+        working-directory: gui
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download frozen CLI
+        uses: actions/download-artifact@v4
+        with:
+          name: lipidimea-cli
+          path: gui/bin
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
-      - name: Install dependencies
-        working-directory: gui
-        run: npm install
+      - name: Install GUI dependencies
+        run: npm ci
 
-      - name: Build macOS Intel (x64)
-        working-directory: gui
-        run: npm run make-mac-x64
+      - name: Build + package for macOS (x64 & arm64)
+        run: npm run make-mac   # your existing script that calls electron-builder
 
-      - name: Upload macOS Intel Artifact
+      - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
-          name: mac-univeral-distributable
-          # Use the absolute path on the runner or a relative path if preferred
-          path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
+          name: macos-gui
+          path: out/make/**/LipidIMEA-*-mac.dmg
 
-  # build-mac-m1:
-  #   name: Build macOS (M1 arm64)
-  #   runs-on: macos-14
+
+
+
+
+  # build-windows:
+  #   name: Build Windows (x64)
+  #   runs-on: windows-latest
   #   steps:
   #     - name: Checkout repository
   #       uses: actions/checkout@v3
@@ -52,43 +91,13 @@ jobs:
   #       working-directory: gui
   #       run: npm install
 
-  #     - name: Rebuild native modules for Electron (arm64)
+  #     - name: Build Windows (x64)
   #       working-directory: gui
-  #       run: npm run rebuild-arm64
-        
-  #     - name: Build macOS M1 (arm64)
-  #       working-directory: gui
-  #       run: npm run make-mac-arm64
+  #       run: npm run make-win32-x64
 
-  #     - name: Upload macOS M1 Artifact
+  #     - name: Upload Windows Artifacts
   #       uses: actions/upload-artifact@v4
   #       with:
-  #         name: mac-m1-distributable
-  #         path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-arm64.dmg
-
-  build-windows:
-    name: Build Windows (x64)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        working-directory: gui
-        run: npm install
-
-      - name: Build Windows (x64)
-        working-directory: gui
-        run: npm run make-win32-x64
-
-      - name: Upload Windows Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-distributable
-          path: 'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
+  #         name: windows-distributable
+  #         path: 'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
 
