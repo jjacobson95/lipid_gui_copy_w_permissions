@@ -20,10 +20,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install lipidimea dependencies
+      - name: Install lipidimea
         run: |
           pip install pyinstaller
-          pip install .[cli]   # or however you install lipidimea
+          pip install ./lipidimea
 
       - name: Freeze CLI with PyInstaller
         id: freeze
