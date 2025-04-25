@@ -23,7 +23,7 @@ jobs:
       - name: Install lipidimea
         run: |
           pip install pyinstaller
-          pip install ./lipidimea
+          pip install .
 
       - name: Freeze CLI with PyInstaller
         id: freeze
