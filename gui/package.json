@@ -8,9 +8,8 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "make-mac-x64": "electron-forge make --arch=x64 --platform=darwin --out-dir=out/make/mac-x64",
-    "make-mac-arm64": "electron-forge make --arch=arm64 --platform=darwin --out-dir=out/make/mac-arm64",
-    "make-win32-x64": "electron-forge make --arch=x64 --platform=win32 --out-dir=out/make/win32-x64",
+    "make-x64": "arch -x86_64 electron-forge make --arch=x64 --platform=darwin --out-dir=out/x64",
+    "make-arm64": "arch -arm64 electron-forge make --arch=arm64 --platform=darwin --out-dir=out/arm64",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
     "rebuild": "npm run rebuild-x64 && npm run rebuild-arm64",
@@ -29,6 +28,7 @@
     "forge": {
       "packagerConfig": {
         "asar": false,
+        "platform": "darwin",
         "extraResource": [
           "../lipidimea"
         ]
@@ -37,7 +37,7 @@
         {
           "name": "@electron-forge/maker-dmg",
           "config": {
-            "outDir": "./out/make/mac-x64"
+            "outDir": "./out/make/x64"
           },
           "platforms": [
             "darwin"
@@ -47,7 +47,7 @@
         {
           "name": "@electron-forge/maker-dmg",
           "config": {
-            "outDir": "./out/make/mac-arm64"
+            "outDir": "./out/make/arm64"
           },
           "platforms": [
             "darwin"
@@ -57,7 +57,7 @@
         {
           "name": "@electron-forge/maker-zip",
           "config": {
-            "outDir": "./out/make/mac-x64"
+            "outDir": "./out/make/x64"
           },
           "platforms": [
             "darwin"
@@ -67,21 +67,12 @@
         {
           "name": "@electron-forge/maker-zip",
           "config": {
-            "outDir": "./out/make/mac-arm64"
+            "outDir": "./out/make/arm64"
           },
           "platforms": [
             "darwin"
           ],
           "arch": "arm64"
-        },
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "dia_dda_application"
-          },
-          "platforms": [
-            "win32"
-          ]
         },
         {
           "name": "@electron-forge/maker-deb",
@@ -114,6 +105,6 @@
     "@electron-forge/maker-squirrel": "^6.4.2",
     "@electron-forge/maker-zip": "^6.4.2",
     "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
-    "electron": "^24.3.1"
+    "electron": "^24.8.8"
   }
 }

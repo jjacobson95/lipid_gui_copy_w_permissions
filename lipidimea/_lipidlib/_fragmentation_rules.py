@@ -266,13 +266,13 @@ class _FragRuleDynamic(_FragRule):
     
     
 # see which classes have fragmentation rules defined
-_FRAG_RULE_CLASSES = [op.splitext(op.split(_)[-1])[0] for _ in glob(op.abspath(op.join(__file__, op.pardir, '_include/rules/LM*')))]
+_FRAG_RULE_CLASSES = [op.splitext(op.split(_)[-1])[0] for _ in glob(op.abspath(op.join(__file__, op.pardir, '_include/lipidlib/rules/LM*')))]
 
 
 def load_rules(lmaps_prefix: str, ionization: str) -> Tuple[bool, List[_FragRule]]:
     """
     Load all fragmentation rules relevant to a particular lipid class and ionization
-    as well as the general rules (`any.yml`)
+    as well as the general rules (`any.yaml`)
 
     Parameters
     ----------
@@ -292,14 +292,15 @@ def load_rules(lmaps_prefix: str, ionization: str) -> Tuple[bool, List[_FragRule
     if ionization not in ["POS", "NEG"]:
         msg = "load_rules: ionization must be either 'POS' or 'NEG', was: {}"
         raise ValueError(msg.format(ionization))
-    rule_dir = op.abspath(op.join(__file__, op.pardir, '_include/rules'))
+    #rule_dir = op.abspath(op.join(__file__, op.pardir, '_include/lipidlib/rules')
+    rule_dir = op.abspath(op.join(__file__, op.pardir, '..', '_include', 'lipidlib', 'rules'))
     rules = []
-    any_path = op.join(rule_dir, 'any.yml')
+    any_path = op.join(rule_dir, 'any.yaml')
     with open(any_path, 'r')as yff:
         rules_ = yaml.safe_load(yff)[ionization]
     found = False
     if lmaps_prefix in _FRAG_RULE_CLASSES:
-        yf_pth = op.join(rule_dir, '{}.yml'.format(lmaps_prefix))
+        yf_pth = op.join(rule_dir, '{}.yaml'.format(lmaps_prefix))
         with open(yf_pth, 'r') as yf:
             ion_rules = yaml.safe_load(yf).get(ionization)
             if ion_rules is not None:
