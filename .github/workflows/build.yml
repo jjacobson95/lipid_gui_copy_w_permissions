@@ -23,7 +23,7 @@ jobs:
 
       - name: Install lipidimea dependencies
         run: |
-          install --upgrade pip
+          python3 -m pip install --upgrade pip
           pip install .
 
       - name: Install PyInstaller
