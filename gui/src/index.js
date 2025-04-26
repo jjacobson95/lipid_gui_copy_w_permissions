@@ -18,8 +18,8 @@ const LIPIDIMEA_ROOT = app.isPackaged
 
 // Similarly, pick the right embedded binary:
 const PYTHON_CLI = app.isPackaged
-  ? path.join(process.resourcesPath, 'bin', 'lipidimea')
-  : path.join(__dirname, 'bin', 'lipidimea');
+  ? path.join(process.resourcesPath, 'lipidimea')
+  : path.join(__dirname, 'lipidimea');
 
 // const isMac = process.platform === 'darwin';
 // const exeSuffix = isMac ? '' : '.exe';
