@@ -121,6 +121,7 @@ app.on('activate', () => {
 
 ipcMain.on('getDefaults', async (event) => {
   try {
+
     // In development the lipidimea folder lives in your repo root;
     // when packaged it gets copied into Resources/lipidimea
     const includeDir = app.isPackaged
@@ -311,10 +312,46 @@ ipcMain.on('file-dialog-selection', (event, filePath) => {
 
 
 
+
+
+
+function ls(dir = ".") {
+  console.log(`\n# ${path.resolve(dir)}`);
+  console.log(fs.readdirSync(dir).join("  "));
+}
+
+
+function lsStar(dir = ".") {
+  ls(dir);
+  fs.readdirSync(dir, { withFileTypes:true })
+    .filter(d => d.isDirectory())
+    .forEach(d => ls(path.join(dir, d.name)));
+}
+
+
+
+
+
+
+
+
+
+
+
 ipcMain.on('run-lipidimea-cli-steps', async (event, { steps }) => {
   for (const { cmd, desc } of steps) {
     event.reply('python-result-experiment', `\n>>> ${desc}\n`);
     try {
+
+      console.log('process.resourcesPath', process.resourcesPath)
+      console.log('LIPIDIMEA_ROOT', LIPIDIMEA_ROOT)
+      console.log('PYTHON_CLI', PYTHON_CLI)
+
+      ls(); 
+      lsStarStar(process.resourcesPath);
+      lsStar("bin");
+
+
       await new Promise((resolve, reject) => {
         const child = spawn(
           // Always call the packaged binary
