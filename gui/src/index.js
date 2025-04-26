@@ -13,12 +13,12 @@ const { PassThrough } = require('stream');
 
 // Resolve paths differently in dev vs packaged
 const LIPIDIMEA_ROOT = app.isPackaged
-  ? path.join(process.resourcesPath, 'lipidimea')
+  ? path.join(process.resourcesPath)
   : path.resolve(__dirname, '..', '..', 'lipidimea');
 
 // Similarly, pick the right embedded binary:
 const PYTHON_CLI = app.isPackaged
-  ? path.join(process.resourcesPath, 'lipidimea')
+  ? path.join('lipidimea')
   : path.join(__dirname, 'lipidimea');
 
 // const isMac = process.platform === 'darwin';
