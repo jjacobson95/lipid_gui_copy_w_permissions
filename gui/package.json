@@ -30,7 +30,7 @@
         "asar": false,
         "extraResource": [
           "bin/lipidimea",
-          "../lipidimea"
+          "../lipidimea/_include"
         ]
       },
       "makers": [

@@ -124,8 +124,8 @@ ipcMain.on('getDefaults', async (event) => {
     // In development the lipidimea folder lives in your repo root;
     // when packaged it gets copied into Resources/lipidimea
     const includeDir = app.isPackaged
-      ? path.join(process.resourcesPath, 'lipidimea', '_include')
-      : path.join(__dirname, '..', '..', 'lipidimea', '_include'); 
+      ? path.join(process.resourcesPath, '_include')
+      : path.join(__dirname, '..', '..', '_include'); 
 
     const ddaPath = path.join(includeDir, 'default_dda_params.yaml');
     const diaPath = path.join(includeDir, 'default_dia_params.yaml');
