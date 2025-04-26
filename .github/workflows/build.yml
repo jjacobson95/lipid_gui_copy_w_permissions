@@ -62,6 +62,10 @@ jobs:
       - name: Install GUI dependencies
         run: npm install
 
+
+      - name: Build + package for macOS (x64 & arm64)
+        run: npm run make-x64   # your existing script that calls electron-builder
+
       - name: ls
         run: |
           ls
@@ -69,14 +73,12 @@ jobs:
           ls ..
           ls ../..
 
-      - name: Build + package for macOS (x64 & arm64)
-        run: npm run make-x64   # your existing script that calls electron-builder
 
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
           name: macos-gui
-          path: out/make/**/LipidIMEA-*-mac.dmg
+          path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
 
 
 
