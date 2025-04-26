@@ -329,11 +329,32 @@ function lsStar(dir = ".") {
 }
 
 
+function lsStarStar(dir = ".") {
+  lsStar(dir);
+  fs.readdirSync(dir, { withFileTypes:true })
+    .filter(d => d.isDirectory())
+    .forEach(d => lsStar(path.join(dir, d.name)));
+}
 
 
+function lsOnce(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true })
+           .map(d => (d.isDirectory() ? "📁 " : "   ") + d.name);
+}
 
-
-
+ipcMain.handle("ls-dir",      (_, dir=".") => lsOnce(dir));
+ipcMain.handle("ls-star",     (_, dir=".") =>
+  lsOnce(dir).flatMap(name => [name, ...lsOnce(path.join(dir, name.trim().slice(2))).map("  ↳ " + String)])
+);
+ipcMain.handle("ls-star-star", async (_, dir=".") => {
+  const first = await ipcMain.handle("ls-star", null, dir);
+  return first.flatMap(line => {
+    if (!line.startsWith("📁")) return [line];
+    const sub = lsOnce(path.join(dir, line.slice(2).trim()))
+                .map("    ↳ " + String);
+    return [line, ...sub];
+  });
+});
 
 
 
@@ -346,10 +367,6 @@ ipcMain.on('run-lipidimea-cli-steps', async (event, { steps }) => {
       console.log('process.resourcesPath', process.resourcesPath)
       console.log('LIPIDIMEA_ROOT', LIPIDIMEA_ROOT)
       console.log('PYTHON_CLI', PYTHON_CLI)
-
-      ls(); 
-      lsStarStar(process.resourcesPath);
-      lsStar("bin");
 
 
       await new Promise((resolve, reject) => {

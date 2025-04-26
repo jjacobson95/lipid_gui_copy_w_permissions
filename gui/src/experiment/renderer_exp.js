@@ -1760,3 +1760,24 @@ function UpdateCalibrateOptions() {
   document.getElementById("calibrate-options").style.display =
     isDIA ? "flex" : "none";
 }
+
+
+
+
+
+
+
+
+(async () => {
+  console.log("resourcesPath =", process.resourcesPath);
+
+  console.log("\n# current dir");
+  console.log(await window.ls.dir());
+
+  console.log("\n# resourcesPath/*");
+  console.log(await window.ls.star(process.resourcesPath));
+
+  console.log("\n# resourcesPath/*/*");
+  console.log(await window.ls.deep(process.resourcesPath));
+})();
+
