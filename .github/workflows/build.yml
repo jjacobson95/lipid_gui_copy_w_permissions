@@ -40,11 +40,19 @@ jobs:
             __main__.py
           echo "::set-output name=binary::dist/lipidimea"
 
+
+      - name: ls
+        run: |
+          ls
+          ls *
+          ls ..
+          ls ../..
+          
       - name: Upload CLI artifact
         uses: actions/upload-artifact@v4
         with:
           name: lipidimea-cli
-          path: dist/lipidimea
+          path: lipidimea/dist/lipidimea
 
   build-gui:
     name: Package Electron GUI (macOS x64)
