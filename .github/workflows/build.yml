@@ -1,4 +1,5 @@
-name: Build & Package GUI + Python CLI
+# .github/workflows/build-mac-intel.yml
+name: Build macOS (Intel x64)
 
 on:
   push:
@@ -7,106 +8,59 @@ on:
     branches: [ main ]
 
 jobs:
-  build-python:
-    name: Build lipidimea CLI
-    runs-on: ubuntu-latest
-    outputs:
-      cli-binary-path: ${{ steps.freeze.outputs.binary }}
-    steps:
-      - uses: actions/checkout@v3
+  build-mac-intel:
+    name: Build macOS (Intel x64)
+    runs-on: macos-13
 
-      - name: Set up Python
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # ── Python / PyInstaller ────────────────────────────────────────────────
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
-      - name: Install lipidimea
+      - name: Install lipidimea dependencies
         run: |
-          pip install pyinstaller
+          cd lipidimea
+          python -m pip install --upgrade pip
+          # adjust if you have a requirements.txt
           pip install .
 
-      - name: Freeze CLI with PyInstaller
-        id: freeze
-        run: |
-          pyinstaller --noconfirm --onefile --name lipidimea lipidimea/__main__.py
-          echo "::set-output name=binary::dist/lipidimea"
+      - name: Install PyInstaller
+        run: pip install pyinstaller
 
-      - name: Upload CLI artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: lipidimea-cli
-          path: dist/lipidimea
-
-  build-gui:
-    name: Package Electron GUI
-    needs: build-python
-    runs-on: macos-13
-    defaults:
-      run:
+      - name: Build experiment.py into a single executable
         working-directory: gui
+        run: |
+          # this will produce gui/embeddedPythonMac/experiment (or .exe on Windows)
+          pyinstaller \
+            --clean \
+            --noconfirm \
+            --onefile \
+            --distpath embeddedPythonMac \
+            experiment.spec
 
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Download frozen CLI
-        uses: actions/download-artifact@v4
-        with:
-          name: lipidimea-cli
-          path: gui/bin
-
+      # ── Electron / Forge ────────────────────────────────────────────────────
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
       - name: Install GUI dependencies
+        working-directory: gui
         run: npm install
 
+      - name: Build macOS Intel (x64) DMG
+        working-directory: gui
+        run: npm run make-x64
 
-      - name: Build + package for macOS (x64 & arm64)
-        run: npm run make-x64   # your existing script that calls electron-builder
-
-      - name: ls
-        run: |
-          ls
-          ls *
-          ls ..
-          ls ../..
-
-
-      - name: Upload macOS DMG
+      # ── Upload Artifact ─────────────────────────────────────────────────────
+      - name: Upload macOS Intel Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macos-gui
+          name: mac-intel-dmg
           path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
-
-
-
-
-
-  # build-windows:
-  #   name: Build Windows (x64)
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: '16'
-
-  #     - name: Install dependencies
-  #       working-directory: gui
-  #       run: npm install
-
-  #     - name: Build Windows (x64)
-  #       working-directory: gui
-  #       run: npm run make-win32-x64
-
-  #     - name: Upload Windows Artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: windows-distributable
-  #         path: 'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
 

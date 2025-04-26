@@ -828,7 +828,7 @@ function WriteCategoryYaml(containerId, categoryKey, name, saveLoc) {
     name:       name,
     location:   saveLoc
   };
-  window.api.send("run-python-yamlwriter", options);
+  window.api.send("write-yaml", options);
   outputBox.innerText += `Wrote ${categoryKey.toUpperCase()} config to ${saveLoc}/${name}.yaml\n`;
 }
 
@@ -900,7 +900,7 @@ function WriteToYaml(containerId, name, location) {
     options.location = location;
   }
 
-  window.api.send('run-python-yamlwriter', options);
+  window.api.send('write-yaml', options);
 }
 
 
