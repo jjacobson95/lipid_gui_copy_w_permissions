@@ -13,7 +13,7 @@ app_darwin_x64: dist/experiment dist/yamlwriter docs version
 # build the GUI app for macOS on ARM
 app_darwin_arm64: dist/experiment dist/yamlwriter docs version
 	@echo "-> building GUI app for macOS (ARM)"
-	@npm run make-x64
+	@npm run make-mac-arm64
 
 # build the GUI app for Windows (x64)
 app_win32_x64: dist/experiment dist/yamlwriter docs version
