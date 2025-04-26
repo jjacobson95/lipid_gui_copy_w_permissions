@@ -1,5 +1,5 @@
-# .github/workflows/build-mac-intel.yml
-name: Build macOS (Intel x64)
+# .github/workflows/build-and-package.yml
+name: Build & Package GUI + Python CLI
 
 on:
   push:
@@ -8,15 +8,14 @@ on:
     branches: [ main ]
 
 jobs:
-  build-mac-intel:
-    name: Build macOS (Intel x64)
+  build-python:
+    name: Build lipidimea CLI (macOS)
     runs-on: macos-13
-
+    outputs:
+      cli-binary-path: ${{ steps.freeze.outputs.binary }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      # ── Python / PyInstaller ────────────────────────────────────────────────
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
@@ -24,43 +23,60 @@ jobs:
 
       - name: Install lipidimea dependencies
         run: |
-          cd lipidimea
-          python -m pip install --upgrade pip
-          # adjust if you have a requirements.txt
+          install --upgrade pip
           pip install .
 
       - name: Install PyInstaller
         run: pip install pyinstaller
 
-      - name: Build experiment.py into a single executable
-        working-directory: gui
+      - name: Freeze CLI with PyInstaller
+        id: freeze
+        working-directory: lipidimea
         run: |
-          # this will produce gui/embeddedPythonMac/experiment (or .exe on Windows)
           pyinstaller \
-            --clean \
             --noconfirm \
             --onefile \
-            --distpath embeddedPythonMac \
-            experiment.spec
+            --name lipidimea \
+            __main__.py
+          echo "::set-output name=binary::dist/lipidimea"
 
-      # ── Electron / Forge ────────────────────────────────────────────────────
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lipidimea-cli
+          path: dist/lipidimea
+
+  build-gui:
+    name: Package Electron GUI (macOS x64)
+    needs: build-python
+    runs-on: macos-13
+    defaults:
+      run:
+        working-directory: gui
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download frozen CLI
+        uses: actions/download-artifact@v4
+        with:
+          name: lipidimea-cli
+          path: bin
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
       - name: Install GUI dependencies
-        working-directory: gui
         run: npm install
 
-      - name: Build macOS Intel (x64) DMG
-        working-directory: gui
+      - name: Build + package for macOS (x64)
         run: npm run make-x64
 
-      # ── Upload Artifact ─────────────────────────────────────────────────────
-      - name: Upload macOS Intel Artifact
+      - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
-          name: mac-intel-dmg
+          name: macos-gui
           path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
 
