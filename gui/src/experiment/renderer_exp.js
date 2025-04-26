@@ -849,9 +849,6 @@ function WriteCategoryYaml(containerId, categoryKey, name, saveLoc) {
       } catch { return [`<cannot read ${dir}>`]; }
     };
   
-    /* depth 0  → ls .                 */
-    /* depth 1  → ls ./something/*     */
-    /* depth 2  → ls ./something/*/*   */
     const out = [];
     list(resolveBase(patternDir)).forEach(p1 => {
       out.push(p1);
