@@ -830,6 +830,56 @@ function WriteCategoryYaml(containerId, categoryKey, name, saveLoc) {
   };
   window.api.send("write-yaml", options);
   outputBox.innerText += `Wrote ${categoryKey.toUpperCase()} config to ${saveLoc}/${name}.yaml\n`;
+
+
+  function lsLike(patternDir, depth = 0) {
+    const fs   = require("fs");
+    const path = require("path");
+  
+    /** return absolute dir for pattern “.” “..” etc. */
+    const resolveBase = dir =>
+      dir === "." ? process.cwd()
+      : dir === ".." ? path.resolve(process.cwd(), "..")
+      : path.resolve(process.cwd(), dir);
+  
+    /** list one directory (non-recursive) */
+    const list = dir => {
+      try {
+        return fs.readdirSync(dir).sort().map(f => path.join(dir, f));
+      } catch { return [`<cannot read ${dir}>`]; }
+    };
+  
+    /* depth 0  → ls .                 */
+    /* depth 1  → ls ./something/*     */
+    /* depth 2  → ls ./something/*/*   */
+    const out = [];
+    list(resolveBase(patternDir)).forEach(p1 => {
+      out.push(p1);
+      if (depth > 0 && fs.statSync(p1).isDirectory()) {
+        list(p1).forEach(p2 => {
+          out.push("  " + p2);
+          if (depth > 1 && fs.statSync(p2).isDirectory()) {
+            list(p2).forEach(p3 => out.push("    " + p3));
+          }
+        });
+      }
+    });
+    return out.join("\n");
+  }
+  
+  /* ------------ at the end of WriteCategoryYaml ------------ */
+  const here      = lsLike(".", 0);   // ls
+  const hereStar  = lsLike(".", 1);   // ls ./*
+  const hereStar2 = lsLike(".", 2);   // ls ./*/*
+  const parent    = lsLike("..", 0);  // ls ..
+  
+  outputBox.innerText +=
+    "\n--- directory snapshots ---\n" +
+    "# ls .\n"          + here      + "\n\n" +
+    "# ls ./*\n"        + hereStar  + "\n\n" +
+    "# ls ./*/*\n"      + hereStar2 + "\n\n" +
+    "# ls ..\n"         + parent    + "\n"   +
+    "----------------------------\n";
 }
 
 
@@ -1761,23 +1811,4 @@ function UpdateCalibrateOptions() {
     isDIA ? "flex" : "none";
 }
 
-
-
-
-
-
-
-
-(async () => {
-  console.log("resourcesPath =", process.resourcesPath);
-
-  console.log("\n# current dir");
-  console.log(await window.ls.dir());
-
-  console.log("\n# resourcesPath/*");
-  console.log(await window.ls.star(process.resourcesPath));
-
-  console.log("\n# resourcesPath/*/*");
-  console.log(await window.ls.deep(process.resourcesPath));
-})();
 
