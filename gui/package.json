@@ -29,8 +29,7 @@
       "packagerConfig": {
         "asar": false,
         "extraResource": [
-          "bin/lipidimea",
-          "embeddedPythonMac"
+          "bin/lipidimea"
         ]
       },
       "makers": [
