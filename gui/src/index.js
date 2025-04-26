@@ -20,7 +20,7 @@ const LIPIDIMEA_ROOT = app.isPackaged
 const PYTHON_CLI = app.isPackaged
   ? path.join(process.resourcesPath, 'bin', 'lipidimea')
   : path.join(__dirname, 'bin', 'lipidimea');
-  
+
 // const isMac = process.platform === 'darwin';
 // const exeSuffix = isMac ? '' : '.exe';
 // const EXP_EXE  = path.join(__dirname, '..', 'dist', `experiment${exeSuffix}`);
@@ -125,7 +125,7 @@ ipcMain.on('getDefaults', async (event) => {
     // when packaged it gets copied into Resources/lipidimea
     const includeDir = app.isPackaged
       ? path.join(process.resourcesPath, 'lipidimea', '_include')
-      : path.join(__dirname, '..', '..', 'lipidimea', '_include');
+      : path.join(__dirname, '..', '..', 'lipidimea', '_include'); 
 
     const ddaPath = path.join(includeDir, 'default_dda_params.yaml');
     const diaPath = path.join(includeDir, 'default_dia_params.yaml');
