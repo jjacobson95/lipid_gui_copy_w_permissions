@@ -62,6 +62,13 @@ jobs:
       - name: Install GUI dependencies
         run: npm install
 
+      - name: ls
+        run: |
+          ls
+          ls *
+          ls ..
+          ls ../..
+
       - name: Build + package for macOS (x64 & arm64)
         run: npm run make-x64   # your existing script that calls electron-builder
 

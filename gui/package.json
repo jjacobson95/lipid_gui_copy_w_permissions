@@ -29,7 +29,7 @@
       "packagerConfig": {
         "asar": false,
         "extraResource": [
-          "../dist/mac/lipidimea",     
+          "../dist/lipidimea",     
           "../dist/win/lipidimea.exe" 
         ]
       },
