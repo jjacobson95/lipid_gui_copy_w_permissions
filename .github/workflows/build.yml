@@ -60,7 +60,7 @@ jobs:
           node-version: '16'
 
       - name: Install GUI dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build + package for macOS (x64 & arm64)
         run: npm run make-mac   # your existing script that calls electron-builder
