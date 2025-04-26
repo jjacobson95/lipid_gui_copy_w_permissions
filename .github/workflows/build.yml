@@ -69,7 +69,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: lipidimea-cli
-          path: bin
+          path: gui/bin
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
