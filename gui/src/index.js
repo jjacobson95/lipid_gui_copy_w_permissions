@@ -21,6 +21,52 @@ const PYTHON_CLI = app.isPackaged
   ? path.join('lipidimea')
   : path.join(__dirname, 'lipidimea');
 
+
+  // Error Degubign...
+  
+  /* produce Unix-style ls listings */
+  function lsListing(startDir, depth = 0, indent = "") {
+    const safe = p => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
+  
+    let out = [];
+    for (const name of (fs.readdirSync(startDir).sort())) {
+      const full = path.join(startDir, name);
+      out.push(indent + name);
+      if (depth > 0 && safe(full)) {
+        out = out.concat(lsListing(full, depth - 1, indent + "  "));
+      }
+    }
+    return out;
+  }
+  
+  ipcMain.on("debug-list-paths", (event, { baseDir, maxDepth }) => {
+    const base = path.resolve(baseDir);
+    const parent = path.resolve(base, "..");
+  
+    const lines = [
+      "# ls .",
+      ...lsListing(base, 0),
+  
+      "\n# ls ./*",
+      ...lsListing(base, 1),
+  
+      "\n# ls ./*/*",
+      ...lsListing(base, 2),
+  
+      `\n# ls ..   (${parent})`,
+      ...lsListing(parent, 0)
+    ].join("\n");
+  
+    event.reply("debug-list-paths-result", lines);
+  });
+
+
+
+
+
+
+
+
 // const isMac = process.platform === 'darwin';
 // const exeSuffix = isMac ? '' : '.exe';
 // const EXP_EXE  = path.join(__dirname, '..', 'dist', `experiment${exeSuffix}`);
@@ -263,6 +309,13 @@ ipcMain.on('write-yaml', (event, options) => {
     console.error('YAML write error:', err);
     event.reply('python-result-yamlwriter', `ERROR writing YAML: ${err.message}\n`);
   }
+});
+
+
+window.api.send("debug-list-paths", {
+  // you can change these; keep them simple JSON-serialisable
+  baseDir : ".",   // current working dir
+  maxDepth: 2      // 0 = ls ., 1 = ls ./*, 2 = ls ./*/*   (we’ll also do "..")
 });
 
 

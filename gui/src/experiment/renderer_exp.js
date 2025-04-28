@@ -832,51 +832,25 @@ function WriteCategoryYaml(containerId, categoryKey, name, saveLoc) {
   outputBox.innerText += `Wrote ${categoryKey.toUpperCase()} config to ${saveLoc}/${name}.yaml\n`;
 
 
-  function lsLike(patternDir, depth = 0) {
-    const fs   = require("fs");
-    const path = require("path");
-  
-    /** return absolute dir for pattern “.” “..” etc. */
-    const resolveBase = dir =>
-      dir === "." ? process.cwd()
-      : dir === ".." ? path.resolve(process.cwd(), "..")
-      : path.resolve(process.cwd(), dir);
-  
-    /** list one directory (non-recursive) */
-    const list = dir => {
-      try {
-        return fs.readdirSync(dir).sort().map(f => path.join(dir, f));
-      } catch { return [`<cannot read ${dir}>`]; }
-    };
-  
-    const out = [];
-    list(resolveBase(patternDir)).forEach(p1 => {
-      out.push(p1);
-      if (depth > 0 && fs.statSync(p1).isDirectory()) {
-        list(p1).forEach(p2 => {
-          out.push("  " + p2);
-          if (depth > 1 && fs.statSync(p2).isDirectory()) {
-            list(p2).forEach(p3 => out.push("    " + p3));
-          }
-        });
+
+  const paths = [];
+  (function collect(obj, prefix = "") {
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === "string" && /[\\/]/.test(v)) {
+        paths.push(`${prefix}${k}: ${v}`);
+      } else if (v && typeof v === "object") {
+        collect(v, `${prefix}${k}.`);
       }
-    });
-    return out.join("\n");
-  }
-  
-  /* ------------ at the end of WriteCategoryYaml ------------ */
-  const here      = lsLike(".", 0);   // ls
-  const hereStar  = lsLike(".", 1);   // ls ./*
-  const hereStar2 = lsLike(".", 2);   // ls ./*/*
-  const parent    = lsLike("..", 0);  // ls ..
-  
+    }
+  })(section);
+
   outputBox.innerText +=
-    "\n--- directory snapshots ---\n" +
-    "# ls .\n"          + here      + "\n\n" +
-    "# ls ./*\n"        + hereStar  + "\n\n" +
-    "# ls ./*/*\n"      + hereStar2 + "\n\n" +
-    "# ls ..\n"         + parent    + "\n"   +
-    "----------------------------\n";
+      `Wrote ${categoryKey.toUpperCase()} config → ${saveLoc}/${name}.yaml\n`
+    + (paths.length
+          ? "Paths used:\n  " + paths.join("\n  ") + "\n"
+          : "(no paths found)\n");
+
+          
 }
 
 
@@ -1809,3 +1783,12 @@ function UpdateCalibrateOptions() {
 }
 
 
+
+
+
+window.api.receive("debug-list-paths-result", listing => {
+  outputBox.innerText +=
+    "\n─── directory snapshots ───\n" +
+    listing +
+    "\n───────────────────────────\n";
+});
