@@ -21,10 +21,20 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install lipidimea dependencies
+      - name: Install lipidimea + deps
         run: |
           python3 -m pip install --upgrade pip
           pip install .
+          pip install \
+            h5py \
+            hdf5plugin \
+            pandas \
+            numpy \
+            scipy \
+            matplotlib \
+            pyyaml \
+            "mzapy>=1.8.0" \
+            polars
 
       - name: Install PyInstaller
         run: pip install pyinstaller
