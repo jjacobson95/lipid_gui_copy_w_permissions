@@ -25,44 +25,41 @@ const PYTHON_CLI = app.isPackaged
   // Error Degubign...
   
 
-  function safeReaddir(dir) {
-    try { return fs.readdirSync(dir).sort(); }
-    catch { return []; }               // unreadable ⇒ empty
-  }
-  
-  function safeIsDir(p) {
-    try { return fs.statSync(p).isDirectory(); }
-    catch { return false; }
-  }
-  
-  /* depth = 0  → list dir itself           (ls .)
-     depth = 1  → dir and its children      (ls ./*)
-     depth = 2  → dir, children, grand-…    (ls ./*/*) */
-  function listDir(dir, depth, indent = "") {
-    let out = [];
-    for (const name of safeReaddir(dir)) {
-      const full = path.join(dir, name);
-      out.push(indent + name);
-      if (depth > 0 && safeIsDir(full)) {
-        out = out.concat(listDir(full, depth - 1, indent + "  "));
-      }
+function safeReaddir(dir) {
+  try { return fs.readdirSync(dir).sort(); }
+  catch { return []; }               // unreadable ⇒ empty
+}
+
+function safeIsDir(p) {
+  try { return fs.statSync(p).isDirectory(); }
+  catch { return false; }
+}
+
+function listDir(dir, depth, indent = "") {
+  let out = [];
+  for (const name of safeReaddir(dir)) {
+    const full = path.join(dir, name);
+    out.push(indent + name);
+    if (depth > 0 && safeIsDir(full)) {
+      out = out.concat(listDir(full, depth - 1, indent + "  "));
     }
-    return out;
   }
-  
-  ipcMain.on("debug-list-paths", (event, { baseDir, maxDepth = 2 }) => {
-    // default: app’s own Resources folder (safe, always readable)
-    const base   = path.resolve(baseDir || process.resourcesPath);
-    const parent = path.resolve(base, "..");
-  
-    const txt =
-        "# ls .\n"          + listDir(base,   0).join("\n") +
-      "\n\n# ls ./*\n"       + listDir(base,   1).join("\n") +
-      "\n\n# ls ./*/*\n"     + listDir(base,   2).join("\n") +
-      `\n\n# ls ..   (${parent})\n` + listDir(parent, 0).join("\n");
-  
-    event.reply("debug-list-paths-result", txt);
-  });
+  return out;
+}
+
+ipcMain.on("debug-list-paths", (event, { baseDir, maxDepth = 2 }) => {
+  // default: app’s own Resources folder (safe, always readable)
+  const base   = path.resolve(baseDir || process.resourcesPath);
+  const parent = path.resolve(base, "..");
+
+  const txt =
+      "# ls .\n"          + listDir(base,   0).join("\n") +
+    "\n\n# ls ./*\n"       + listDir(base,   1).join("\n") +
+    "\n\n# ls ./*/*\n"     + listDir(base,   2).join("\n") +
+    `\n\n# ls ..   (${parent})\n` + listDir(parent, 0).join("\n");
+
+  event.reply("debug-list-paths-result", txt);
+});
 
 
 
