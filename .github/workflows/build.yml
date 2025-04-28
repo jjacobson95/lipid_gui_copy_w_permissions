@@ -34,7 +34,7 @@ jobs:
             matplotlib \
             pyyaml \
             "mzapy>=1.8.0" \
-            polars
+            polars-lts-cpu
 
       - name: Install PyInstaller
         run: pip install pyinstaller
