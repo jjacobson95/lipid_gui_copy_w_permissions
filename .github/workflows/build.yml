@@ -47,7 +47,7 @@ jobs:
             --noconfirm \
             --onefile \
             --name lipidimea \
-            --add-data "lipidimea/_include"
+            --add-data "_include:lipidimea/_include"
             __main__.py
           echo "::set-output name=binary::dist/lipidimea"
 
