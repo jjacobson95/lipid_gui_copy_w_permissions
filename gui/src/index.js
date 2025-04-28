@@ -17,11 +17,10 @@ const LIPIDIMEA_ROOT = app.isPackaged
   : path.resolve(__dirname, '..', '..', 'lipidimea');
 
 // Similarly, pick the right embedded binary:
+
 const PYTHON_CLI = app.isPackaged
-  ? path.join('lipidimea')
-  : path.join(__dirname, 'lipidimea');
-
-
+  ? path.join(process.resourcesPath, "lipidimea")   // <── absolute
+  : path.join(__dirname, "lipidimea");
   // Error Degubign...
   
 
@@ -382,8 +381,6 @@ ipcMain.handle("ls-star-star", async (_, dir=".") => {
 });
 
 
-
-
 ipcMain.on('run-lipidimea-cli-steps', async (event, { steps }) => {
   for (const { cmd, desc } of steps) {
     event.reply('python-result-experiment', `\n>>> ${desc}\n`);
@@ -399,16 +396,12 @@ ipcMain.on('run-lipidimea-cli-steps', async (event, { steps }) => {
 
 
       await new Promise((resolve, reject) => {
-        const child = spawn(
-          // Always call the packaged binary
-          PYTHON_CLI,
-          // cmd already includes the subcommand + its args
-          cmd,
-          {
-            cwd: LIPIDIMEA_ROOT,
-            env: process.env,
-          }
-        );
+        const child = spawn(PYTHON_CLI, cmd, {
+          cwd: LIPIDIMEA_ROOT,   // fine to leave this as Resources or anything else
+          env: process.env
+        });
+
+
 
         child.stdout.on('data', d => event.reply('python-result-experiment', d.toString()));
         child.stderr.on('data', d => event.reply('python-result-experiment', d.toString()));

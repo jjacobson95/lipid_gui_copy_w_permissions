@@ -850,13 +850,13 @@ function WriteCategoryYaml(containerId, categoryKey, name, saveLoc) {
           ? "Paths used:\n  " + paths.join("\n  ") + "\n"
           : "(no paths found)\n");
 
-          
+
   window.api.send("debug-list-paths", { maxDepth: 2 });
-  window.api.send("debug-list-paths", {
-    // you can change these; keep them simple JSON-serialisable
-    baseDir : ".",   // current working dir
-    maxDepth: 2      // 0 = ls ., 1 = ls ./*, 2 = ls ./*/*   (we’ll also do "..")
-  });
+  // window.api.send("debug-list-paths", {
+  //   // you can change these; keep them simple JSON-serialisable
+  //   baseDir : ".",   // current working dir
+  //   maxDepth: 2      // 0 = ls ., 1 = ls ./*, 2 = ls ./*/*   (we’ll also do "..")
+  // });
           
 }
 
