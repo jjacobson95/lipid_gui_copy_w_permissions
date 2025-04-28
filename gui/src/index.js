@@ -24,40 +24,44 @@ const PYTHON_CLI = app.isPackaged
 
   // Error Degubign...
   
-  /* produce Unix-style ls listings */
-  function lsListing(startDir, depth = 0, indent = "") {
-    const safe = p => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
+
+  function safeReaddir(dir) {
+    try { return fs.readdirSync(dir).sort(); }
+    catch { return []; }               // unreadable ⇒ empty
+  }
   
+  function safeIsDir(p) {
+    try { return fs.statSync(p).isDirectory(); }
+    catch { return false; }
+  }
+  
+  /* depth = 0  → list dir itself           (ls .)
+     depth = 1  → dir and its children      (ls ./*)
+     depth = 2  → dir, children, grand-…    (ls ./*/*) */
+  function listDir(dir, depth, indent = "") {
     let out = [];
-    for (const name of (fs.readdirSync(startDir).sort())) {
-      const full = path.join(startDir, name);
+    for (const name of safeReaddir(dir)) {
+      const full = path.join(dir, name);
       out.push(indent + name);
-      if (depth > 0 && safe(full)) {
-        out = out.concat(lsListing(full, depth - 1, indent + "  "));
+      if (depth > 0 && safeIsDir(full)) {
+        out = out.concat(listDir(full, depth - 1, indent + "  "));
       }
     }
     return out;
   }
   
-  ipcMain.on("debug-list-paths", (event, { baseDir, maxDepth }) => {
-    const base = path.resolve(baseDir);
+  ipcMain.on("debug-list-paths", (event, { baseDir, maxDepth = 2 }) => {
+    // default: app’s own Resources folder (safe, always readable)
+    const base   = path.resolve(baseDir || process.resourcesPath);
     const parent = path.resolve(base, "..");
   
-    const lines = [
-      "# ls .",
-      ...lsListing(base, 0),
+    const txt =
+        "# ls .\n"          + listDir(base,   0).join("\n") +
+      "\n\n# ls ./*\n"       + listDir(base,   1).join("\n") +
+      "\n\n# ls ./*/*\n"     + listDir(base,   2).join("\n") +
+      `\n\n# ls ..   (${parent})\n` + listDir(parent, 0).join("\n");
   
-      "\n# ls ./*",
-      ...lsListing(base, 1),
-  
-      "\n# ls ./*/*",
-      ...lsListing(base, 2),
-  
-      `\n# ls ..   (${parent})`,
-      ...lsListing(parent, 0)
-    ].join("\n");
-  
-    event.reply("debug-list-paths-result", lines);
+    event.reply("debug-list-paths-result", txt);
   });
 
 
