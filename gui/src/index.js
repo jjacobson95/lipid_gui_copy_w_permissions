@@ -393,8 +393,8 @@ ipcMain.on('run-lipidimea-cli-steps', async (event, { steps }) => {
       console.log('PYTHON_CLI', PYTHON_CLI)
 
 
-      ls(); 
-      lsStarStar(process.resourcesPath);
+      // ls(); 
+      // lsStarStar(process.resourcesPath);
 
 
       await new Promise((resolve, reject) => {
