@@ -394,6 +394,7 @@ ipcMain.on('run-lipidimea-cli-steps', async (event, { steps }) => {
       // ls(); 
       // lsStarStar(process.resourcesPath);
 
+      try { fs.chmodSync(PYTHON_CLI, 0o755); } catch (e) {}
 
       await new Promise((resolve, reject) => {
         const child = spawn(PYTHON_CLI, cmd, {
