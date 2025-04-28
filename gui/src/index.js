@@ -312,13 +312,6 @@ ipcMain.on('write-yaml', (event, options) => {
 });
 
 
-window.api.send("debug-list-paths", {
-  // you can change these; keep them simple JSON-serialisable
-  baseDir : ".",   // current working dir
-  maxDepth: 2      // 0 = ls ., 1 = ls ./*, 2 = ls ./*/*   (we’ll also do "..")
-});
-
-
 
 
 // Generic function for opening dialog to select a file
