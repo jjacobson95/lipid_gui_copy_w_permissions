@@ -1,4 +1,4 @@
-# .github/workflows/build-and-package.yml
+# .github/workflows/build.yml
 name: Build & Package GUI + Python CLI
 
 on:
