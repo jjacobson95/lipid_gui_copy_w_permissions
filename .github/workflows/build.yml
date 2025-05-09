@@ -98,26 +98,18 @@ jobs:
 
       - name: ls
         run: |
-          set -e
-          for cmd in \
-              "ls" \
-              "ls *" \
-              "ls */*" \
-              "ls */*/*" \
-              "ls .." \
-              "ls ../.."
-          do
-            echo "+ $cmd"
-            # run the command, ignore “no match” errors, strip node_modules
-            (eval "$cmd" 2>/dev/null || true) | grep -vE '(^|/|\\)node_modules(/|$)' || true
-            echo
-          done
+          ls
+          ls *
+          ls */*
+          ls */*/*
+          ls ..
+          ls ../..
 
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
           name: macos-gui
-          path: ${{ github.workspace }}/gui/out/make/x64/*.dmg
+          path: ${{ github.workspace }}/gui/out/**/make/**/*.dmg
           # path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
 
 
@@ -196,20 +188,12 @@ jobs:
 
       - name: ls
         run: |
-          set -e
-          for cmd in \
-              "ls" \
-              "ls *" \
-              "ls */*" \
-              "ls */*/*" \
-              "ls .." \
-              "ls ../.."
-          do
-            echo "+ $cmd"
-            # run the command, ignore “no match” errors, strip node_modules
-            (eval "$cmd" 2>/dev/null || true) | grep -vE '(^|/|\\)node_modules(/|$)' || true
-            echo
-          done
+          ls
+          ls *
+          ls */*
+          ls */*/*
+          ls ..
+          ls ../..
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
