@@ -130,9 +130,7 @@ jobs:
         id: freeze
         working-directory: lipidimea
         run: |
-          pyinstaller --noconfirm --onefile --name lipidimea ^
-                     --add-data "_include;lipidimea/_include" ^
-                     __main__.py
+          pyinstaller --noconfirm --onefile --name lipidimea --add-data "_include;lipidimea/_include" __main__.py
           echo "binary=dist/lipidimea.exe" >> %GITHUB_OUTPUT%
 
       - name: Upload CLI artifact
