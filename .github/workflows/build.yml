@@ -98,18 +98,27 @@ jobs:
 
       - name: ls
         run: |
-          ls
-          ls *
-          ls */*
-          ls */*/*
-          ls ..
-          ls ../..
+          set -e
+          for cmd in \
+              "ls" \
+              "ls *" \
+              "ls */*" \
+              "ls */*/*" \
+              "ls .." \
+              "ls ../.."
+          do
+            echo "+ $cmd"
+            # run the command, ignore “no match” errors, strip node_modules
+            (eval "$cmd" 2>/dev/null || true) | grep -vE '(^|/|\\)node_modules(/|$)' || true
+            echo
+          done
 
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
           name: macos-gui
-          path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
+          path: ${{ github.workspace }}/gui/out/make/x64/*.dmg
+          # path: /Users/runner/work/lipid_gui_private/lipid_gui_private/gui/out/make/dia_dda_application-0.12.26-x64.dmg
 
 
 
@@ -187,19 +196,30 @@ jobs:
 
       - name: ls
         run: |
-          ls
-          ls *
-          ls */*
-          ls */*/*
-          ls ..
-          ls ../..
+          set -e
+          for cmd in \
+              "ls" \
+              "ls *" \
+              "ls */*" \
+              "ls */*/*" \
+              "ls .." \
+              "ls ../.."
+          do
+            echo "+ $cmd"
+            # run the command, ignore “no match” errors, strip node_modules
+            (eval "$cmd" 2>/dev/null || true) | grep -vE '(^|/|\\)node_modules(/|$)' || true
+            echo
+          done
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
           name: windows-gui
           path: |
-            'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
+            ${{ github.workspace }}\gui\out\make\squirrel.windows\x64\*.exe
+            ${{ github.workspace }}\gui\out\make\squirrel.windows\x64\*.nupkg
+
+# 'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
 
 
 # ${{ github.workspace }}\gui\out\make\squirrel.windows\x64\*.exe
