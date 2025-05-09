@@ -96,6 +96,15 @@ jobs:
       - name: Build + package for macOS (x64)
         run: npm run make-x64
 
+      - name: ls
+        run: |
+          ls
+          ls *
+          ls */*
+          ls */*/*
+          ls ..
+          ls ../..
+
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
@@ -180,6 +189,8 @@ jobs:
         run: |
           ls
           ls *
+          ls */*
+          ls */*/*
           ls ..
           ls ../..
 
