@@ -157,6 +157,10 @@ jobs:
           name: lipidimea-cli-win
           path: gui/bin                    # ⇒ gui/bin/lipidimea.exe
 
+      - name: Duplicate CLI so packager finds bin/lipidimea
+        run: |
+          copy bin\lipidimea.exe bin\lipidimea
+
       - name: Make CLI executable 
         run: |
           icacls bin\\lipidimea.exe /grant Everyone:RX
@@ -171,6 +175,13 @@ jobs:
 
       - name: Build + package for Windows
         run: npm run make-win32-x64
+
+      - name: ls
+        run: |
+          ls
+          ls *
+          ls ..
+          ls ../..
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
