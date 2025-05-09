@@ -15,13 +15,17 @@ const LIPIDIMEA_ROOT = app.isPackaged
   ? path.join(process.resourcesPath)
   : path.resolve(__dirname, '..', '..');
 
-// Similarly, pick the right embedded binary:
+// Select the right embedded binary
 
-const PYTHON_CLI = app.isPackaged
-  ? path.join(process.resourcesPath, "lipidimea")   // <── absolute
-  : path.join(__dirname, '..','..',"python3.12");
+// const PYTHON_CLI = app.isPackaged
+//   ? path.join(process.resourcesPath, "lipidimea")   // <── absolute
+//   : path.join(__dirname, '..','..',"python3.12");
   // Error Degubign...
-  
+
+const exe = process.platform === 'win32' ? 'lipidimea.exe' : 'lipidimea';
+const PYTHON_CLI = app.isPackaged
+  ? path.join(process.resourcesPath, exe)
+  : path.join(__dirname, '..','..',"python3.12");
 
 function safeReaddir(dir) {
   try { return fs.readdirSync(dir).sort(); }
