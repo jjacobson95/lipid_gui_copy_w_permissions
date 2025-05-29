@@ -85,6 +85,9 @@ jobs:
       - name: Make CLI executable
         run: chmod +x bin/lipidimea
 
+      - name: create dummy exe file
+        run: touch bin/lipidimea.exe
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -167,9 +170,9 @@ jobs:
           name: lipidimea-cli-win
           path: gui/bin                    # ⇒ gui/bin/lipidimea.exe
 
-      # - name: Duplicate CLI so packager finds bin/lipidimea
-      #   run: |
-      #     copy bin\lipidimea.exe bin\lipidimea
+      - name: Duplicate CLI so packager finds bin/lipidimea
+        run: |
+          copy bin\lipidimea.exe bin\lipidimea
 
       - name: Make CLI executable 
         run: |
