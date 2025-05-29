@@ -167,9 +167,9 @@ jobs:
           name: lipidimea-cli-win
           path: gui/bin                    # ⇒ gui/bin/lipidimea.exe
 
-      - name: Duplicate CLI so packager finds bin/lipidimea
-        run: |
-          copy bin\lipidimea.exe bin\lipidimea
+      # - name: Duplicate CLI so packager finds bin/lipidimea
+      #   run: |
+      #     copy bin\lipidimea.exe bin\lipidimea
 
       - name: Make CLI executable 
         run: |
