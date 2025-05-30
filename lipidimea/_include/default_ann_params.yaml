@@ -14,7 +14,7 @@ ionization:
 # Sum composition annotation
 sum_comp:
   display_name: "Sum composition annotation"
-  fa_c:
+  fa_cl:
     default:
       min: 12
       max: 24

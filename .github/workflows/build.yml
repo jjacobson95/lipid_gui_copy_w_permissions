@@ -202,10 +202,3 @@ jobs:
           path: |
             ${{ github.workspace }}\gui\out\make\squirrel.windows\x64\*.exe
             ${{ github.workspace }}\gui\out\make\squirrel.windows\x64\*.nupkg
-
-# 'D:\a\lipid_gui_private\lipid_gui_private\gui\out\make\squirrel.windows\x64\dia_dda_application-0.12.26 Setup.exe'
-
-
-# ${{ github.workspace }}\gui\out\make\squirrel.windows\x64\*.exe
-# ${{ github.workspace }}\gui\out\make\squirrel.windows\x64\*.nupkg
-

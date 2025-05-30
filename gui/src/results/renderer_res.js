@@ -3007,36 +3007,7 @@ window.api.receive('lipid-fragment-details', (data) => {
 });
 
 
-document.addEventListener('keydown', function (e) {
-  // Check if an active table is set.
-  if (!window.activeTableElement) {
-    return;
-  }
-  
-  // Find the currently selected row in that table.
-  // This example looks for a row with either class "selected" or "selected-row".
-  let selectedRow = window.activeTableElement.querySelector('.selected, .selected-row');
-  if (!selectedRow) return;
-  
-  // For arrow down: move to the next sibling row.
-  if (e.key === 'ArrowDown') {
-    let nextRow = selectedRow.nextElementSibling;
-    if (nextRow) {
-      nextRow.click();
-      nextRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      e.preventDefault();
-    }
-  }
-  // For arrow up: move to the previous sibling row.
-  else if (e.key === 'ArrowUp') {
-    let prevRow = selectedRow.previousElementSibling;
-    if (prevRow) {
-      prevRow.click();
-      prevRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      e.preventDefault();
-    }
-  }
-});
+
 
 
 window.api.receive('delete-annotated-feature-rows-result', (result) => {

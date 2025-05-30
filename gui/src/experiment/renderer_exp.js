@@ -350,83 +350,239 @@ let loadyamlonce = true;
 //     }
 // });
 
+// window.api.receive('returnDefaults', (data) => {
+//   data = { PARAMETERS: data };
+//   if (!loadyamlonce) return;
+//   loadyamlonce = false;
+//   if (!data) return;
+
+//   const defaultParams = data.PARAMETERS;
+//   const sectionsTop = Object.keys(defaultParams).filter(k => k !== 'misc');
+
+//   const generalContainer = document.getElementById('duo-inputs-column-both-general');
+//   const advContainer     = document.getElementById('duo-inputs-column-both-advanced');
+
+//   sectionsTop.forEach((sectionKey) => {
+//     const sectionMeta = defaultParams[sectionKey];
+//     const headerText  = sectionMeta.display_name;
+
+//     // Section headers in both tabs
+//     createHeaderElement(headerText, generalContainer, sectionKey);
+//     createHeaderElement(headerText, advContainer, sectionKey);
+
+//     // Iterate through each subsection under this section
+//     Object.keys(sectionMeta)
+//       .filter(subKey => subKey !== 'display_name')
+//       .forEach((subKey) => {
+//         const node = sectionMeta[subKey];
+
+//         // --- Leaf param? (has a default) ---
+//         if (node && typeof node === 'object' && node.hasOwnProperty('default')) {
+//           // General tab: only non-advanced
+//           if (!node.advanced) {
+//             createParameterElement(
+//               node.display_name, subKey, node.description, generalContainer
+//             );
+//             createInput(node, subKey, generalContainer, advContainer);
+//           }
+//           // Advanced tab: all parameters
+//           createParameterElement(
+//             node.display_name, subKey, node.description, advContainer
+//           );
+//           createInput(node, subKey, advContainer, generalContainer);
+
+//         // --- Grouped params (no direct default) ---
+//         } else if (node && typeof node === 'object') {
+//           // Subheaders in both tabs
+//           createSubHeaderElement(
+//             node.display_name, generalContainer, subKey
+//           );
+//           createSubHeaderElement(
+//             node.display_name, advContainer, subKey
+//           );
+
+//           // Split children by advanced flag
+//           const entries = Object.entries(node)
+//                                  .filter(([k]) => k !== 'display_name');
+//           const generalEntries = entries.filter(([,meta]) => !meta.advanced);
+//           const advEntries     = entries.filter(([,meta]) =>  meta.advanced);
+
+//           // Render non-advanced in General
+//           generalEntries.forEach(([paramKey, paramMeta]) => {
+//             createParameterElement(
+//               paramMeta.display_name, paramKey, paramMeta.description, generalContainer
+//             );
+//             createInput(paramMeta, paramKey, generalContainer, advContainer);
+//           });
+
+//           // Render **all** in Advanced (first non-advanced, then advanced)
+//           [...generalEntries, ...advEntries].forEach(([paramKey, paramMeta]) => {
+//             createParameterElement(
+//               paramMeta.display_name, paramKey, paramMeta.description, advContainer
+//             );
+//             createInput(paramMeta, paramKey, advContainer, generalContainer);
+//           });
+//         }
+//       });
+//   });
+// });
+
+/* =========================================================== */
+/*  Build the parameter panels once the default YAML arrives   */
+/*  and afterwards link General ↔ Advanced controls            */
+/* =========================================================== */
 window.api.receive('returnDefaults', (data) => {
-  data = { PARAMETERS: data };
-  if (!loadyamlonce) return;
+  /* ----------------- guard: run once only ------------------ */
+  if (!data || !loadyamlonce) return;
   loadyamlonce = false;
-  if (!data) return;
 
-  const defaultParams = data.PARAMETERS;
-  const sectionsTop = Object.keys(defaultParams).filter(k => k !== 'misc');
+  data = { PARAMETERS: data };                 // keep old variable name
+  const defaults = data.PARAMETERS;
+  const general  = document.getElementById('duo-inputs-column-both-general');
+  const advanced = document.getElementById('duo-inputs-column-both-advanced');
 
-  const generalContainer = document.getElementById('duo-inputs-column-both-general');
-  const advContainer     = document.getElementById('duo-inputs-column-both-advanced');
+  /* ----------------- build the UI (unchanged) -------------- */
+  Object.keys(defaults).filter(k => k !== 'misc').forEach(sectionKey => {
+    const sectionMeta = defaults[sectionKey];
 
-  sectionsTop.forEach((sectionKey) => {
-    const sectionMeta = defaultParams[sectionKey];
-    const headerText  = sectionMeta.display_name;
+    // section headers
+    createHeaderElement(sectionMeta.display_name, general,  sectionKey);
+    createHeaderElement(sectionMeta.display_name, advanced, sectionKey);
 
-    // Section headers in both tabs
-    createHeaderElement(headerText, generalContainer, sectionKey);
-    createHeaderElement(headerText, advContainer, sectionKey);
-
-    // Iterate through each subsection under this section
+    // walk subsections / parameters
     Object.keys(sectionMeta)
-      .filter(subKey => subKey !== 'display_name')
-      .forEach((subKey) => {
+      .filter(k => k !== 'display_name')
+      .forEach(subKey => {
         const node = sectionMeta[subKey];
 
-        // --- Leaf param? (has a default) ---
-        if (node && typeof node === 'object' && node.hasOwnProperty('default')) {
-          // General tab: only non-advanced
-          if (!node.advanced) {
-            createParameterElement(
-              node.display_name, subKey, node.description, generalContainer
-            );
-            createInput(node, subKey, generalContainer, advContainer);
+        /* leaf parameter ------------- */
+        if (node && typeof node === 'object' && 'default' in node) {
+          if (!node.advanced) {                       // General
+            createParameterElement(node.display_name, subKey,
+                                   node.description, general);
+            createInput(node, subKey, general, advanced);
           }
-          // Advanced tab: all parameters
-          createParameterElement(
-            node.display_name, subKey, node.description, advContainer
-          );
-          createInput(node, subKey, advContainer, generalContainer);
+          createParameterElement(node.display_name, subKey,  // Advanced
+                                 node.description, advanced);
+          createInput(node, subKey, advanced, general);
+          return;
+        }
 
-        // --- Grouped params (no direct default) ---
-        } else if (node && typeof node === 'object') {
-          // Subheaders in both tabs
-          createSubHeaderElement(
-            node.display_name, generalContainer, subKey
-          );
-          createSubHeaderElement(
-            node.display_name, advContainer, subKey
-          );
+        /* sub-group ------------------- */
+        if (node && typeof node === 'object') {
+          createSubHeaderElement(node.display_name, general,  subKey);
+          createSubHeaderElement(node.display_name, advanced, subKey);
 
-          // Split children by advanced flag
           const entries = Object.entries(node)
-                                 .filter(([k]) => k !== 'display_name');
-          const generalEntries = entries.filter(([,meta]) => !meta.advanced);
-          const advEntries     = entries.filter(([,meta]) =>  meta.advanced);
+                                .filter(([k]) => k !== 'display_name');
 
-          // Render non-advanced in General
-          generalEntries.forEach(([paramKey, paramMeta]) => {
-            createParameterElement(
-              paramMeta.display_name, paramKey, paramMeta.description, generalContainer
-            );
-            createInput(paramMeta, paramKey, generalContainer, advContainer);
+          const genEntries = entries.filter(([,m]) => !m.advanced);
+          const advEntries = entries;                         // all
+
+          genEntries.forEach(([pKey, pMeta]) => {
+            createParameterElement(pMeta.display_name, pKey,
+                                   pMeta.description, general);
+            createInput(pMeta, pKey, general, advanced);
           });
 
-          // Render **all** in Advanced (first non-advanced, then advanced)
-          [...generalEntries, ...advEntries].forEach(([paramKey, paramMeta]) => {
-            createParameterElement(
-              paramMeta.display_name, paramKey, paramMeta.description, advContainer
-            );
-            createInput(paramMeta, paramKey, advContainer, generalContainer);
+          advEntries.forEach(([pKey, pMeta]) => {
+            createParameterElement(pMeta.display_name, pKey,
+                                   pMeta.description, advanced);
+            createInput(pMeta, pKey, advanced, general);
           });
         }
       });
   });
-});
 
+  /* ========================================================= */
+  /*  Now that both panels exist, set up TWO-WAY linkage        */
+  /* ========================================================= */
+
+  /* helper: bind two inputs so both stay in sync */
+  function linkInputs(a, b) {
+    if (!a || !b || a === b) return;
+    const sync = (src, dst) => () => {
+      if (src.type === 'checkbox') dst.checked = src.checked;
+      else                         dst.value   = src.value;
+    };
+    ['input', 'change'].forEach(ev => {
+      a.addEventListener(ev, sync(a, b));
+      b.addEventListener(ev, sync(b, a));
+    });
+  }
+
+  /* main linker – subgroup aware */
+  /* ------------------------------------------------------------------ */
+/*  After the UI is built: link General ↔ Advanced controls           */
+/* ------------------------------------------------------------------ */
+(function linkGeneralAndAdvanced() {
+
+  const SECTION_IDS = ['dda', 'dia', 'annotation', 'misc'];
+
+  const genCol = document.getElementById('duo-inputs-column-both-general');
+  const advCol = document.getElementById('duo-inputs-column-both-advanced');
+
+  /* ───────── helpers ────────────────────────────────────────────── */
+
+  /** Walk *backwards* from el until we hit a <p> that is a section
+      header (“dda”, “dia”, …). */
+  function findSection(el) {
+    for (let cur = el.previousElementSibling; cur; cur = cur.previousElementSibling) {
+      if (cur.tagName === 'P' && SECTION_IDS.includes(cur.id)) {
+        return cur.id;                          // "dda" | "dia" | …
+      }
+    }
+    return null;
+  }
+
+  /** Walk backwards until we hit a subgroup <p> (key === "Ignore")
+      OR a section header; return the subgroup id or null. */
+  function findSubGroup(el) {
+    for (let cur = el.previousElementSibling; cur; cur = cur.previousElementSibling) {
+      if (cur.tagName === 'P' && cur.key === 'Ignore') return cur.id; // subgroup id
+      if (cur.tagName === 'P' && SECTION_IDS.includes(cur.id)) return null;
+    }
+    return null;
+  }
+
+  /** Link two real input elements bidirectionally. */
+  function wire(src, dest) {
+    if (!src || !dest) return;          // one side missing
+
+    const copy = (from, to) => {
+      if (from.type === 'checkbox')     to.checked = from.checked;
+      else                              to.value   = from.value;
+    };
+
+    src .addEventListener('input', () => copy(src,  dest));
+    dest.addEventListener('input', () => copy(dest, src ));
+  }
+
+  /** Add *all* (non-hidden) inputs from a column to a map keyed by
+      "section|subgroup|id". */
+  function buildMap(col) {
+    const map = new Map();
+    col.querySelectorAll('input:not([type="hidden"])').forEach(inp => {
+      const key =
+        `${findSection(inp)}|${findSubGroup(inp) ?? ''}|${inp.id}`;
+      map.set(key, inp);
+    });
+    return map;
+  }
+
+  /* ───────── wiring up ──────────────────────────────────────────── */
+
+  const genInputs = buildMap(genCol);
+  const advInputs = buildMap(advCol);
+
+  for (const [key, gInp] of genInputs) {
+    wire(gInp, advInputs.get(key));
+  }
+
+})();
+
+
+});        /* end window.api.receive */
 
 
 
@@ -625,16 +781,16 @@ function createInput(paramMeta, id, parentNode, otherTab) {
     element.style.gridColumn = '2';
     element.key = 'Ignore';
     // Sync across tabs
-    element.addEventListener('change', e => {
-      const mirror = otherTab.querySelector(`#${id}`);
-      if (mirror) {
-        if (paramMeta.type === 'bool') {
-          mirror.checked = e.target.checked;
-        } else {
-          mirror.value = e.target.value;
-        }
-      }
-    });
+    // element.addEventListener('change', e => {
+    //   const mirror = otherTab.querySelector(`#${id}`);
+    //   if (mirror) {
+    //     if (paramMeta.type === 'bool') {
+    //       mirror.checked = e.target.checked;
+    //     } else {
+    //       mirror.value = e.target.value;
+    //     }
+    //   }
+    // });
   } else {
     // the wrapper div gets the grid styling
     element.style.gridColumn = '2';
@@ -2018,4 +2174,18 @@ function lockCalibrate(lock) {
     yes.disabled = false;
     no.disabled  = false;
   }
+}
+
+function linkInputs(a, b) {
+  if (!a || !b || a === b) return;
+
+  const sync = (src, dst) => () => {
+    if (src.type === 'checkbox') dst.checked = src.checked;
+    else                         dst.value   = src.value;
+  };
+
+  ['input', 'change'].forEach(ev => {
+    a.addEventListener(ev, sync(a, b));
+    b.addEventListener(ev, sync(b, a));
+  });
 }
