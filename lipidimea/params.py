@@ -411,7 +411,7 @@ class AnnotationParams:
 
     def __post_init__(self):
         if type(self.sum_comp) is dict:
-            self.sum_comp = _AnnotationComponent(**self.sum_comp)
+            self.sum_comp = _SumCompAnnotationComponent(**self.sum_comp)
         if type(self.frag_rules) is dict:
             self.frag_rules = _AnnotationComponent(**self.frag_rules)
         if type(self.ccs_trends) is dict:
